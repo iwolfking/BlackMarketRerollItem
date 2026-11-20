@@ -24,6 +24,7 @@ import iskallia.vault.container.inventory.ShardTradeContainer;
 import iskallia.vault.init.ModItems;
 import iskallia.vault.init.ModNetwork;
 import iskallia.vault.init.ModSounds;
+import iskallia.vault.item.CoinPouchItem;
 import iskallia.vault.item.ItemShardPouch;
 import iskallia.vault.network.message.ServerboundResetBlackMarketTradesMessage;
 import iskallia.vault.skill.base.TieredSkill;
@@ -140,7 +141,7 @@ public abstract class ShardTradeScreenMixin extends AbstractElementContainerScre
         this.addElement(new TextureAtlasElement<>(Spatials.positionXY(-37, 18), ScreenTextures.SOUL_SHARD_TRADE_ORNAMENT)
                 .layout(this::bmt$translateToGui));
         this.addElement(new FakeItemSlotElement<>(Spatials.positionXY(-21, 34), () -> new ItemStack(ModItems.UNKNOWN_ITEM), () -> !this.canBuyRandomTrade())
-                .whenClicked(this::buyRandomTrade)
+                .whenClicked((e) -> buyRandomTrade())
                 .tooltip((tooltipRenderer, poseStack, mouseX, mouseY, tooltipFlag) -> {
                     tooltipRenderer.renderTooltip(poseStack, new ItemStack(ModItems.UNKNOWN_ITEM), mouseX, mouseY, TooltipDirection.RIGHT);
                     return true;
@@ -196,7 +197,7 @@ public abstract class ShardTradeScreenMixin extends AbstractElementContainerScre
                 return info == null ? ItemStack.EMPTY : info.getA().copy();
             }, () -> !this.canBuyTrade(index)))
                     .setLabelStackCount()
-                    .whenClicked(() -> {
+                    .whenClicked((e) -> {
                         if (omega) {
                             bmt$particles[xIndex].pop(4, 20);
                             bmt$particles[xIndex + 2].pop(4, 20);
@@ -223,7 +224,7 @@ public abstract class ShardTradeScreenMixin extends AbstractElementContainerScre
 
     @Inject(method = "updateTradeLabels", at = @At("HEAD"), cancellable = true)
     private void updateLabels(CallbackInfo ci) {
-        int playerShards = ItemShardPouch.getShardCount(menu.getPlayer());
+        int playerShards = CoinPouchItem.getSoulShardCount(menu.getPlayer());
         bmt$setCostLabel(this.labelRandomTrade, playerShards, ClientShardTradeData.getRandomTradeCost());
 
         for(int i = 0; i < labelShopTrades.length; ++i) {
@@ -288,7 +289,7 @@ public abstract class ShardTradeScreenMixin extends AbstractElementContainerScre
     private void canBuyTrade(int tradeIndex, CallbackInfoReturnable<Boolean> cir) {
         Tuple<ItemStack, Integer> tradeInfo = ClientShardTradeData.getTradeInfo(tradeIndex);
         cir.setReturnValue(tradeInfo != null
-                && ItemShardPouch.getShardCount(menu.getPlayer()) >= tradeInfo.getB()
+                && CoinPouchItem.getSoulShardCount(menu.getPlayer()) >= tradeInfo.getB()
                 && bmt$hasTrade(tradeIndex + 1));
     }
 
